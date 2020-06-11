@@ -1,58 +1,173 @@
 package main
+
 import (
-    "fmt"
-    "log"
-    "net/http"
-    "github.com/gorilla/mux"
-    "context"
-	  "github.com/kr/pretty"
-  	"googlemaps.github.io/maps"
-    "html/template"
+	"encoding/json"
+	"fmt"
+	"html/template"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"strings"
+
+	"github.com/gorilla/mux"
 )
 
-func GetRequest() {
-  c, err := maps.NewClient(maps.WithAPIKey("AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY"))
-  if err != nil {
-    log.Fatalf("fatal error: %s", err)
-  }
-  r := &maps.DirectionsRequest{
-    Origin:      "Sydney",
-    Destination: "Perth",
-  }
-  route, _, err := c.Directions(context.Background(), r)
-  if err != nil {
-    log.Fatalf("fatal error: %s", err)
-  }
+type GoogleGeoLocation struct {
+	Results []struct {
+		AddressComponents []struct {
+			LongName  string   `json:"long_name"`
+			ShortName string   `json:"short_name"`
+			Types     []string `json:"types"`
+		} `json:"address_components"`
+		FormattedAddress string `json:"formatted_address"`
+		Geometry         struct {
+			Location struct {
+				Lat float64 `json:"lat"`
+				Lng float64 `json:"lng"`
+			} `json:"location"`
+			LocationType string `json:"location_type"`
+			Viewport     struct {
+				Northeast struct {
+					Lat float64 `json:"lat"`
+					Lng float64 `json:"lng"`
+				} `json:"northeast"`
+				Southwest struct {
+					Lat float64 `json:"lat"`
+					Lng float64 `json:"lng"`
+				} `json:"southwest"`
+			} `json:"viewport"`
+		} `json:"geometry"`
+		PlaceID  string `json:"place_id"`
+		PlusCode struct {
+			CompoundCode string `json:"compound_code"`
+			GlobalCode   string `json:"global_code"`
+		} `json:"plus_code"`
+		Types []string `json:"types"`
+	} `json:"results"`
+	Status string `json:"status"`
+}
 
-  pretty.Println(route)
+func GetRequest() {
+	APIURL := "https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY"
+	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
+	if err != nil {
+		panic(err)
+	}
+	// fmt.Println(req)
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	// fmt.Println(resp)
+	geolocation := GoogleGeoLocation{}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	// fmt.Println(string(body))
+
+	// bytes_route, err := json.Marshal(route)
+	err2 := json.Unmarshal(body, &geolocation)
+	if err2 != nil {
+		fmt.Println("error occured during unmarshalling: ", err2)
+	}
+	// fmt.Println("geolocation after: ", geolocation)
+}
+
+func GeoLocationHandler(w http.ResponseWriter, r *http.Request) {
+	APIURL := "https://maps.googleapis.com/maps/api/geocode/json?address=Chinatown,+CA&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY"
+	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
+	if err != nil {
+		panic(err)
+	}
+	// fmt.Println(req)
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	// fmt.Println(resp)
+	geolocation := GoogleGeoLocation{}
+
+	defer resp.Body.Close()
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	// body, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// source https://www.golanglearn.com/how-to-parse-json-data-in-golang/
+	var geo GoogleGeoLocation
+	decoder := json.NewDecoder(resp.Body).Decode(&geo)
+	fmt.Printf("%+v\n", geolocation)
+	fmt.Println(decoder)
+	res, err := json.Marshal(&geo)
+	w.Write(res)
+	// jsn, err := ioutil.ReadAll(r.Body)
+	// if err != nil {
+	// 	log.Fatal("Error reading the body", err)
+	// }
 }
 
 type TarikPage struct {
-  HistoryOf string
-  Description string
+	HistoryOf   string
+	Description string
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
-  w.Header().Set("Content-Type", "text/html")
-  fmt.Fprint(w, "<h1>Whoa, this place is neat!</h1>")
-}
-
-func contact(w http.ResponseWriter, r *http.Request) {
-  w.Header().Set("Content-Type", "text/html")
-  fmt.Fprintf(w, "To get in touch, please send an email to <a href=\"mailto:support@lenslocked.com\"> support@lenslocked.com</a>.")
+	// w.Header().Set("Content-Type", "text/html")
+	fmt.Fprint(w, "<h1>Whoa, this place is neat!</h1>")
 }
 
 func TarikHandler(w http.ResponseWriter, r *http.Request) {
-  tarik := TarikPage{HistoryOf: "ChinaTown", Description: "For the first Chinatown in the world...."}
-  t, _ := template.ParseFiles("index.html")
-  t.Execute(w, tarik)
+	// fmt.Println(GetRequest())
+	tarik := TarikPage{HistoryOf: "ChinaTown", Description: "For the first Chinatown in the world...."}
+	t, _ := template.ParseFiles("index.html")
+	t.Execute(w, tarik)
+}
 
+func sayhelloName(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm() //Parse url parameters passed, then parse the response packet for the POST body (request body)
+	// attention: If you do not call ParseForm method, the following data can not be obtained form
+	fmt.Println(r.Form) // print information on server side.
+	fmt.Println("path", r.URL.Path)
+	fmt.Println("scheme", r.URL.Scheme)
+	fmt.Println(r.Form["url_long"])
+	for k, v := range r.Form {
+		fmt.Println("key:", k)
+		fmt.Println("val:", strings.Join(v, ""))
+	}
+	fmt.Fprintf(w, "Hello astaxie!") // write data to response
+}
+
+func login(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "GET" {
+		fmt.Println("method in GET:", r.Method) //get request method
+		t, _ := template.ParseFiles("login.gtpl")
+		t.Execute(w, nil)
+	} else {
+		r.ParseForm()
+		// logic part of log in
+		fmt.Println("method in POST:", r.Method) //get request method
+		fmt.Println("Location-Query:", r.Form["location"])
+	}
 }
 
 func main() {
-    r := mux.NewRouter()
-    r.HandleFunc("/", home)
-    r.HandleFunc("/contact", contact)
-    r.HandleFunc("/tarik", TarikHandler)
-    log.Fatal(http.ListenAndServe(":8000", r))
+	GetRequest()
+	// bytes_route := []byte(route)
+
+	r := mux.NewRouter()
+	r.HandleFunc("/", home)
+	r.HandleFunc("/tarik", TarikHandler)
+	r.HandleFunc("/geoloc", GeoLocationHandler)
+	r.HandleFunc("/hello", sayhelloName)
+	r.HandleFunc("/login", login)
+	log.Fatal(http.ListenAndServe(":8100", r))
 }
