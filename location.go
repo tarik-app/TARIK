@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -79,7 +78,10 @@ func GetRequest() {
 }
 
 func GeoLocationHandler(w http.ResponseWriter, r *http.Request) {
-	APIURL := "https://maps.googleapis.com/maps/api/geocode/json?address=Chinatown,+CA&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY"
+
+	APIURL := "https://maps.googleapis.com/maps/api/place/textsearch/json?query=san+francisco+city+point+of+interest&language=en&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY"
+	// "https://maps.googleapis.com/maps/api/geocode/json?address=Chinatown,+CA&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY"
+	// "https://www.googleapis.com/customsearch/v1?key=AIzaSyBN6P9Qqj7BVzYBdJZCML3phYUPAtg-ZUM&cx=017576662512468239146:omuauf_lfve&q=cars&callback=hndlr"
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
 	if err != nil {
 		panic(err)
@@ -90,7 +92,7 @@ func GeoLocationHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	// fmt.Println(resp)
+	fmt.Println(resp)
 	geolocation := GoogleGeoLocation{}
 
 	defer resp.Body.Close()
@@ -132,17 +134,19 @@ func TarikHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func sayhelloName(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm() //Parse url parameters passed, then parse the response packet for the POST body (request body)
-	// attention: If you do not call ParseForm method, the following data can not be obtained form
-	fmt.Println(r.Form) // print information on server side.
-	fmt.Println("path", r.URL.Path)
-	fmt.Println("scheme", r.URL.Scheme)
-	fmt.Println(r.Form["url_long"])
-	for k, v := range r.Form {
-		fmt.Println("key:", k)
-		fmt.Println("val:", strings.Join(v, ""))
-	}
-	fmt.Fprintf(w, "Hello astaxie!") // write data to response
+	// r.ParseForm() //Parse url parameters passed, then parse the response packet for the POST body (request body)
+	// // attention: If you do not call ParseForm method, the following data can not be obtained form
+	// fmt.Println(r.Form) // print information on server side.
+	// fmt.Println("path", r.URL.Path)
+	// fmt.Println("scheme", r.URL.Scheme)
+	// fmt.Println(r.Form["url_long"])
+	// for k, v := range r.Form {
+	// 	fmt.Println("key:", k)
+	// 	fmt.Println("val:", strings.Join(v, ""))
+	// }
+	// fmt.Fprintf(w, "Hello astaxie!") // write data to response
+	t, _ := template.ParseFiles("geolocator.html")
+	t.Execute(w, nil)
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
