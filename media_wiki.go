@@ -1,8 +1,12 @@
 package main
 
 import (
-	"io/ioutil"
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type MediaWiki struct {
@@ -19,7 +23,8 @@ type MediaWiki struct {
 	} `json:"query"`
 }
 
-func MediaWikiGetDesc() {
+func GetMediaWiki() (*http.Response, error) {
+	// making API call and returns http response
 	APIURL := "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=Alcatraz%20Island"
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
 	if err != nil {
@@ -31,13 +36,34 @@ func MediaWikiGetDesc() {
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	// fmt.Println(reflect.TypeOf(resp))
+	return resp, nil
+
+}
+
+func MediaWikiHandler(w http.ResponseWriter, r *http.Request) {
+	// receives http response and post to the server side
+	resp, err := GetMediaWiki()
 	if err != nil {
-		panic(err)
+		fmt.Println("error from GetMediaWiki")
 	}
+
+	mediawiki := MediaWiki{}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	// source https://www.golanglearn.com/how-to-parse-json-data-in-golang/
+	var wiki MediaWiki
+	decoder := json.NewDecoder(resp.Body).Decode(&wiki)
+	fmt.Printf("%+v\n", mediawiki)
+	fmt.Println(decoder)
+	res, err := json.Marshal(&wiki)
+	w.Write(res)
 }
 
 func main() {
-	MediaWikiGetDesc()
+	r := mux.NewRouter()
+	r.HandleFunc("/wiki", MediaWikiHandler)
+	log.Fatal(http.ListenAndServe(":8010", r))
 }
