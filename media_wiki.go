@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 
@@ -62,8 +63,32 @@ func MediaWikiHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
+func templateHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	t, err := template.ParseFiles("wiki.html")
+	if err != nil {
+		fmt.Fprintf(w, "Unable to load template")
+	}
+
+	resp, err := GetMediaWiki()
+	if err != nil {
+		fmt.Println("error from GetMediaWiki")
+	}
+
+	mediawiki := MediaWiki{}
+
+	var wiki MediaWiki
+	decoder := json.NewDecoder(resp.Body).Decode(&wiki)
+	fmt.Printf("%+v\n", mediawiki)
+	fmt.Println(decoder)
+
+	t.Execute(w, &wiki)
+}
+
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/wiki", MediaWikiHandler)
+	r.HandleFunc("/template", templateHandler)
 	log.Fatal(http.ListenAndServe(":8010", r))
 }
