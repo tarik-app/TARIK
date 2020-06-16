@@ -63,6 +63,11 @@ type TouristAttractionSites struct {
 	Status string `json:"status"`
 }
 
+type TarikPage struct {
+	HistoryOf   string
+	Description string
+}
+
 func TouristAttractionHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := GetTouristAttraction()
 	if err != nil {

@@ -86,9 +86,16 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, &wiki)
 }
 
+func GeoLocationHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	tarik := TarikPage{HistoryOf: "ChinaTown", Description: "For the first Chinatown in the world...."}
+	t, err := template.ParseFiles("wiki.html")
+	t.Execute(w, )
+}
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/wiki", MediaWikiHandler)
 	r.HandleFunc("/template", templateHandler)
+	r.HandleFunc("/geo", GeoLocationHandler)
 	log.Fatal(http.ListenAndServe(":8010", r))
 }

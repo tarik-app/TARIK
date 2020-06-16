@@ -1,2 +1,58 @@
-<h1>{{.HistoryOf}}</h1>
-<p>{{.Description}}</p>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<p>Click the button to get your coordinates.</p>
+
+<button onclick="getLocation()">Try It</button>
+
+<p id="demo"></p>
+
+  <script>
+    let socket = new WebSocket("ws://localhost:8080/ws")
+    console.log("Attempting Websocket Connection")
+
+    var x = document.getElementById("demo");
+
+      function getLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.watchPosition(showPosition);
+        } else { 
+          x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+      }
+          
+      function showPosition(position) {
+          x.innerHTML="Latitude: " + position.coords.latitude + 
+          "<br>Longitude: " + position.coords.longitude;
+
+          socket.send("hi everyone this is Redi")
+          socket.send(position.coords.latitude)
+          socket.send(position.coords.longitude)
+
+      }
+
+     
+
+      socket.onopen = () => {
+        console.log("Succesfully Connected")
+        socket.send("Hi from the Client!")
+        // socket.send(showPosition)
+      }
+
+  
+      socket.onclose = (event) => {
+        console.log("Socket connection closed: ", event)
+      }
+      socket.onmessage = (msg) => {
+        console.log("onmessage:")
+        console.log(msg)
+      }
+      socket.onerror = (error) => {
+        console.log("Socket Error: ", error)
+      }
+  </script>
+
+</body>
+</html>

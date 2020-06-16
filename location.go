@@ -16,7 +16,7 @@ type TarikPage struct {
 
 func TarikHandler(w http.ResponseWriter, r *http.Request) {
 	tarik := TarikPage{HistoryOf: "ChinaTown", Description: "For the first Chinatown in the world...."}
-	t, _ := template.ParseFiles("index.html")
+	t, _ := template.ParseFiles("index-tarik.html")
 	t.Execute(w, tarik)
 }
 
@@ -41,3 +41,7 @@ func main() {
 	// r.HandleFunc("/login", login)
 	log.Fatal(http.ListenAndServe(":8100", r))
 }
+
+// about writing template
+// https://stackoverflow.com/questions/35958216/map-json-data-to-html-template-in-golang
+// https://stackoverflow.com/questions/38436854/golang-use-json-in-template-directly
