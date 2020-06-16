@@ -24,31 +24,35 @@
       }
           
       function showPosition(position) {
+          console.log(position.coords.latitude)
+          console.log(position.coords.longitude)
           x.innerHTML="Latitude: " + position.coords.latitude + 
           "<br>Longitude: " + position.coords.longitude;
 
-          socket.send("hi everyone this is Redi")
-          socket.send(position.coords.latitude)
-          socket.send(position.coords.longitude)
+          socket.send("hi everyone this is Redi sending lati and long from client to server:)")
+          socket.send(JSON.stringify({
+            latit: position.coords.latitude,
+            longi: position.coords.longitude
+            }))
+          
 
       }
-
-     
 
       socket.onopen = () => {
         console.log("Succesfully Connected")
         socket.send("Hi from the Client!")
-        // socket.send(showPosition)
       }
 
   
       socket.onclose = (event) => {
         console.log("Socket connection closed: ", event)
       }
+
       socket.onmessage = (msg) => {
         console.log("onmessage:")
         console.log(msg)
       }
+
       socket.onerror = (error) => {
         console.log("Socket Error: ", error)
       }

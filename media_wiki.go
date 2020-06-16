@@ -90,7 +90,7 @@ func GeoLocationHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	tarik := TarikPage{HistoryOf: "ChinaTown", Description: "For the first Chinatown in the world...."}
 	t, err := template.ParseFiles("wiki.html")
-	t.Execute(w, )
+	t.Execute(w)
 }
 func main() {
 	r := mux.NewRouter()
