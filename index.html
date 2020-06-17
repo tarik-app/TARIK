@@ -33,9 +33,7 @@
           socket.send(JSON.stringify({
             latit: position.coords.latitude,
             longi: position.coords.longitude
-            }))
-          
-
+            }))    
       }
 
       socket.onopen = () => {
@@ -57,6 +55,5 @@
         console.log("Socket Error: ", error)
       }
   </script>
-
 </body>
 </html>
