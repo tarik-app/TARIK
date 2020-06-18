@@ -1,6 +1,5 @@
 package touristmedia
 
-// go mod init github.com/Rediet8abere/touristmedia
 import (
 	"encoding/json"
 	"fmt"
@@ -8,6 +7,7 @@ import (
 	"net/http"
 )
 
+// hello there
 type NearbyTourSites struct {
 	HTMLAttributions []interface{} `json:"html_attributions"`
 	Results          []struct {
