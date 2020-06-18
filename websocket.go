@@ -57,13 +57,13 @@ type NearbyTourSites struct {
 	Status string `json:"status"`
 }
 
-func GetNearbyTouristAttraction(lat, long float64) (*http.Response, error) {
+func GetNearbyTouristAttraction(lat, long float64) {
 	// making API call and returns http response
 
 	fmt.Println("coordinate in get nearby tourist attraction :{ ")
 	fmt.Println(lat)
 	fmt.Println(long)
-	url := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=500&type=tourist_attraction&keyword=cruise&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY", lat, long)
+	url := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=2000&type=tourist_attraction&keyword=cruise&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY", lat, long)
 	APIURL := url
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
 	if err != nil {
@@ -87,15 +87,34 @@ func GetNearbyTouristAttraction(lat, long float64) (*http.Response, error) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	// fmt.Println("result name >>>")
-	// fmt.Println(nearby.Results)
-	// fmt.Println(reflect.TypeOf(nearby.Results))
+
 	fmt.Println("---------------------------")
+	var wiki MediaWiki
 	for i := 0; i < len(nearby.Results); i++ {
 		fmt.Println(nearby.Results[i].Name)
 		fmt.Println("\n")
+		mediaResp, mediaErr := GetMediaWiki(nearby.Results[i].Name)
+		if mediaErr != nil {
+			fmt.Println(mediaErr)
+		}
+		defer mediaResp.Body.Close()
+
+		mediaRespBytes, _ := ioutil.ReadAll(mediaResp.Body)
+		mediaString := string(mediaRespBytes)
+		println("media string response: ", mediaString)
+
+		mediaErr = json.Unmarshal(mediaRespBytes, &wiki)
+		if mediaErr != nil {
+			fmt.Println(mediaErr)
+		}
+
+		fmt.Println("\n")
+		fmt.Println()
+		fmt.Println("wiki extracts: ", wiki.Query.Pages.Num64107.Extract)
+		fmt.Println("++++++++++++++++++++++++++++++++")
+
 	}
-	return resp, nil
+	// return resp, nil
 }
 
 var upgrader = websocket.Upgrader{
@@ -117,6 +136,11 @@ func reader(conn *websocket.Conn) {
 			return
 		}
 
+		if err := conn.WriteMessage(messageType, p); err != nil {
+			log.Println(err)
+			return
+		}
+
 		// getting long and latit as json data from the frontend(index.html file)
 
 		var coor LatitLong
@@ -130,18 +154,7 @@ func reader(conn *websocket.Conn) {
 		fmt.Println("latitude", coor.Latit)
 		fmt.Println("longtiude", coor.Longi)
 
-		resp, err := GetNearbyTouristAttraction(coor.Latit, coor.Longi)
-		if err != nil {
-			fmt.Println("error when finding NearbyTouristAttraction")
-		}
-
-		fmt.Println("response after calling GetNearbyTouristAttraction: ")
-		fmt.Println(resp)
-
-		if err := conn.WriteMessage(messageType, p); err != nil {
-			log.Println(err)
-			return
-		}
+		GetNearbyTouristAttraction(coor.Latit, coor.Longi)
 	}
 }
 
