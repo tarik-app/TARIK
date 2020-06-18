@@ -3,119 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/Rediet8abere/touristmedia"
+
 	"github.com/gorilla/websocket"
 )
-
-type NearbyTourSites struct {
-	HTMLAttributions []interface{} `json:"html_attributions"`
-	Results          []struct {
-		BusinessStatus string `json:"business_status"`
-		Geometry       struct {
-			Location struct {
-				Lat float64 `json:"lat"`
-				Lng float64 `json:"lng"`
-			} `json:"location"`
-			Viewport struct {
-				Northeast struct {
-					Lat float64 `json:"lat"`
-					Lng float64 `json:"lng"`
-				} `json:"northeast"`
-				Southwest struct {
-					Lat float64 `json:"lat"`
-					Lng float64 `json:"lng"`
-				} `json:"southwest"`
-			} `json:"viewport"`
-		} `json:"geometry"`
-		Icon         string `json:"icon"`
-		ID           string `json:"id"`
-		Name         string `json:"name"`
-		OpeningHours struct {
-			OpenNow bool `json:"open_now"`
-		} `json:"opening_hours,omitempty"`
-		Photos []struct {
-			Height           int      `json:"height"`
-			HTMLAttributions []string `json:"html_attributions"`
-			PhotoReference   string   `json:"photo_reference"`
-			Width            int      `json:"width"`
-		} `json:"photos"`
-		PlaceID  string `json:"place_id"`
-		PlusCode struct {
-			CompoundCode string `json:"compound_code"`
-			GlobalCode   string `json:"global_code"`
-		} `json:"plus_code"`
-		Rating           int      `json:"rating"`
-		Reference        string   `json:"reference"`
-		Scope            string   `json:"scope"`
-		Types            []string `json:"types"`
-		UserRatingsTotal int      `json:"user_ratings_total"`
-		Vicinity         string   `json:"vicinity"`
-	} `json:"results"`
-	Status string `json:"status"`
-}
-
-func GetNearbyTouristAttraction(lat, long float64) {
-	// making API call and returns http response
-
-	fmt.Println("coordinate in get nearby tourist attraction :{ ")
-	fmt.Println(lat)
-	fmt.Println(long)
-	url := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=2000&type=tourist_attraction&keyword=cruise&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY", lat, long)
-	APIURL := url
-	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
-	if err != nil {
-		panic(err)
-	}
-
-	client := http.DefaultClient
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
-	bodyString := string(bodyBytes)
-	println(bodyString)
-
-	var nearby NearbyTourSites
-	// storing it in struct to pass it to GetNearbyTouristAttraction function
-	err = json.Unmarshal(bodyBytes, &nearby)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println("---------------------------")
-	var wiki MediaWiki
-	for i := 0; i < len(nearby.Results); i++ {
-		fmt.Println(nearby.Results[i].Name)
-		fmt.Println("\n")
-		mediaResp, mediaErr := GetMediaWiki(nearby.Results[i].Name)
-		if mediaErr != nil {
-			fmt.Println(mediaErr)
-		}
-		defer mediaResp.Body.Close()
-
-		mediaRespBytes, _ := ioutil.ReadAll(mediaResp.Body)
-		mediaString := string(mediaRespBytes)
-		println("media string response: ", mediaString)
-
-		mediaErr = json.Unmarshal(mediaRespBytes, &wiki)
-		if mediaErr != nil {
-			fmt.Println(mediaErr)
-		}
-
-		fmt.Println("\n")
-		fmt.Println()
-		fmt.Println("wiki extracts: ", wiki.Query.Pages.Num64107.Extract)
-		fmt.Println("++++++++++++++++++++++++++++++++")
-
-	}
-	// return resp, nil
-}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -141,20 +35,14 @@ func reader(conn *websocket.Conn) {
 			return
 		}
 
-		// getting long and latit as json data from the frontend(index.html file)
-
+		// getting long and latit as json data
 		var coor LatitLong
-		// storing it in struct to pass it to GetNearbyTouristAttraction function
+		// storing it in struct
 		err = json.Unmarshal([]byte(p), &coor)
 		if err != nil {
 			fmt.Println(err)
 		}
-
-		fmt.Println("coordinates")
-		fmt.Println("latitude", coor.Latit)
-		fmt.Println("longtiude", coor.Longi)
-
-		GetNearbyTouristAttraction(coor.Latit, coor.Longi)
+		touristmedia.GetNearbyTouristAttraction(coor.Latit, coor.Longi)
 	}
 }
 
@@ -173,13 +61,8 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	reader(ws)
 }
 
-func setupRoutes() {
-	http.HandleFunc("/ws", wsEndpoint)
-}
-
 func main() {
 	fmt.Println("Go WebSocket!")
-	// r := mux.NewRouter()
-	setupRoutes()
+	http.HandleFunc("/ws", wsEndpoint)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
