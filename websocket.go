@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Rediet8abere/touristmedia"
+	"github.com/tarik-app/TARIK/touristmedia"
 
 	"github.com/gorilla/websocket"
 )
