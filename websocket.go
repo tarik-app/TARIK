@@ -6,9 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/tarik-app/TARIK/touristmedia"
-
 	"github.com/gorilla/websocket"
+	"github.com/tarik-app/TARIK/touristmedia"
 )
 
 var upgrader = websocket.Upgrader{
