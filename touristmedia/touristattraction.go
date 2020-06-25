@@ -7,7 +7,6 @@ import (
 	"net/http"
 )
 
-// hello there
 type NearbyTourSites struct {
 	HTMLAttributions []interface{} `json:"html_attributions"`
 	Results          []struct {
@@ -57,7 +56,7 @@ type NearbyTourSites struct {
 
 func GetNearbyTouristAttraction(lat, long float64) {
 	// making API call and returns http response
-	APIURL := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=2000&type=tourist_attraction&keyword=cruise&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY", lat, long)
+	APIURL := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=1000&type=tourist_attraction&keyword=cruise&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY", lat, long)
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
 	if err != nil {
 		panic(err)
@@ -83,10 +82,26 @@ func GetNearbyTouristAttraction(lat, long float64) {
 
 	// var wiki MediaWiki
 	for i := 0; i < len(nearby.Results); i++ {
+		// "Painted ladies"
+		//
 		mediaResp, mediaErr := GetMediaWiki(nearby.Results[i].Name)
 		if mediaErr != nil {
 			fmt.Println("Error from Media......")
 		}
-		fmt.Println(mediaResp)
+
+		mediaBodyBytes, _ := ioutil.ReadAll(mediaResp.Body)
+		mediaBodyString := string(mediaBodyBytes)
+		fmt.Println("***********************************************************************")
+		print(mediaBodyString)
+
+		var wiki MediaWiki
+		// storing it in struct to pass it to GetNearbyTouristAttraction function
+		err = json.Unmarshal(mediaBodyBytes, &wiki)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+		fmt.Println(wiki.Query.Pages.Num64107.Extract)
+
 	}
 }

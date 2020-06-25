@@ -1,8 +1,12 @@
 package touristmedia
 
+
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+	"os/exec"
+	"strings"
 )
 
 type MediaWiki struct {
@@ -19,13 +23,29 @@ type MediaWiki struct {
 	} `json:"query"`
 }
 
+// china town SF
 func GetMediaWiki(site string) (*http.Response, error) {
+	fmt.Println(site)
+	cmd := exec.Command("python3", "-c", fmt.Sprintf("import wikisearch; print(wikisearch.wiki_search(\"%s\"))", site))
+	fmt.Println(cmd.Args)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	APIURL := fmt.Sprintf("https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=%s", site)
+	s := strings.Split(string(out), ",")
+	fmt.Println(s)
+	fmt.Println(s[0])
+
+	safeQuery := url.QueryEscape(s[0])
+	APIURL := fmt.Sprintf("https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=%s", safeQuery)
+
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
 	if err != nil {
 		panic(err)
 	}
+	// Chinatown, San Francisco
+	// The Painted ladies
 
 	client := http.DefaultClient
 	resp, err := client.Do(req)
