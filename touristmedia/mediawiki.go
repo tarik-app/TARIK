@@ -1,12 +1,10 @@
 package touristmedia
 
-
 import (
 	"fmt"
 	"net/http"
 	"net/url"
 	"os/exec"
-	"strings"
 )
 
 type MediaWiki struct {
@@ -26,18 +24,27 @@ type MediaWiki struct {
 // china town SF
 func GetMediaWiki(site string) (*http.Response, error) {
 	fmt.Println(site)
-	cmd := exec.Command("python3", "-c", fmt.Sprintf("import wikisearch; print(wikisearch.wiki_search(\"%s\"))", site))
-	fmt.Println(cmd.Args)
-	out, err := cmd.CombinedOutput()
+
+	// cmd := exec.Command("python3", "-c", fmt.Sprintf("import wikisearch; print(wikisearch.wiki_search(\"%s\"))", site))
+	// cmd := exec.Command("python", "-c", fmt.Sprintf("import wikisearch; print(wikisearch.wiki_search(\"%s\"))", site))
+	// fmt.Println(cmd.Args)
+	// out, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+
+	// s := strings.Split(string(out), ",")
+	// fmt.Println(s)
+	// fmt.Println(s[0])
+	cmd := exec.Command("wikisearch.py")
+	out, err := cmd.Output()
 	if err != nil {
-		fmt.Println(err)
+		println(err.Error())
+		// return
 	}
+	fmt.Println(string(out))
 
-	s := strings.Split(string(out), ",")
-	fmt.Println(s)
-	fmt.Println(s[0])
-
-	safeQuery := url.QueryEscape(s[0])
+	safeQuery := url.QueryEscape("painted ladies")
 	APIURL := fmt.Sprintf("https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=%s", safeQuery)
 
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
