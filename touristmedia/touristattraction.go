@@ -54,7 +54,7 @@ type NearbyTourSites struct {
 	Status string `json:"status"`
 }
 
-func GetNearbyTouristAttraction(lat, long float64) {
+func GetNearbyTouristAttraction(lat, long float64) []string {
 	// making API call and returns http response
 	APIURL := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=1000&type=tourist_attraction&keyword=cruise&key=AIzaSyBV8iWuM-TmtoQwN91nBigfreJvys4tTiY", lat, long)
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
@@ -70,8 +70,8 @@ func GetNearbyTouristAttraction(lat, long float64) {
 	defer resp.Body.Close()
 
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
-	bodyString := string(bodyBytes)
-	println(bodyString)
+	// bodyString := string(bodyBytes)
+	// println(bodyString)
 
 	var nearby NearbyTourSites
 	// storing it in struct to pass it to GetNearbyTouristAttraction function
@@ -79,29 +79,12 @@ func GetNearbyTouristAttraction(lat, long float64) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	// var wiki MediaWiki
+	var mediasummeryresult []string
 	for i := 0; i < len(nearby.Results); i++ {
-		// "Painted ladies"
-		//
-		mediaResp, mediaErr := GetMediaWiki(nearby.Results[i].Name)
-		if mediaErr != nil {
-			fmt.Println("Error from Media......")
-		}
-
-		mediaBodyBytes, _ := ioutil.ReadAll(mediaResp.Body)
-		mediaBodyString := string(mediaBodyBytes)
-		fmt.Println("***********************************************************************")
-		print(mediaBodyString)
-
-		var wiki MediaWiki
-		// storing it in struct to pass it to GetNearbyTouristAttraction function
-		err = json.Unmarshal(mediaBodyBytes, &wiki)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-		fmt.Println(wiki.Query.Pages.Num64107.Extract)
+		result := GetMediaWiki(nearby.Results[i].Name)
+		mediasummeryresult = append(mediasummeryresult, result)
 
 	}
+
+	return mediasummeryresult
 }

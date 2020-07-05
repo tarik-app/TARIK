@@ -2,9 +2,9 @@ package touristmedia
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os/exec"
 )
 
 type MediaWiki struct {
@@ -21,44 +21,29 @@ type MediaWiki struct {
 	} `json:"query"`
 }
 
-// china town SF
-func GetMediaWiki(site string) (*http.Response, error) {
+func GetMediaWiki(site string) string {
 	fmt.Println(site)
 
-	// cmd := exec.Command("python3", "-c", fmt.Sprintf("import wikisearch; print(wikisearch.wiki_search(\"%s\"))", site))
-	// cmd := exec.Command("python", "-c", fmt.Sprintf("import wikisearch; print(wikisearch.wiki_search(\"%s\"))", site))
-	// fmt.Println(cmd.Args)
-	// out, err := cmd.CombinedOutput()
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// s := strings.Split(string(out), ",")
-	// fmt.Println(s)
-	// fmt.Println(s[0])
-	cmd := exec.Command("wikisearch.py")
-	out, err := cmd.Output()
-	if err != nil {
-		println(err.Error())
-		// return
-	}
-	fmt.Println(string(out))
-
-	safeQuery := url.QueryEscape("painted ladies")
+	query := WikiRequest(site)
+	safeQuery := url.QueryEscape(query)
 	APIURL := fmt.Sprintf("https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=%s", safeQuery)
 
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
 	if err != nil {
 		panic(err)
 	}
-	// Chinatown, San Francisco
-	// The Painted ladies
 
 	client := http.DefaultClient
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
-	return resp, nil
+
+	defer resp.Body.Close()
+
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyString := string(bodyBytes)
+	// println(bodyString)
+	return bodyString
 
 }
