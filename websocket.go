@@ -41,7 +41,14 @@ func reader(conn *websocket.Conn) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		touristmedia.GetNearbyTouristAttraction(coor.Latit, coor.Longi)
+		mediasummeryresult := touristmedia.GetNearbyTouristAttraction(coor.Latit, coor.Longi)
+		fmt.Println(mediasummeryresult)
+
+		if err := conn.WriteJSON(mediasummeryresult); err != nil {
+			log.Println(err)
+			break
+		}
+
 	}
 }
 
@@ -55,7 +62,6 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-
 	log.Println("Client Successfully connected.....")
 	reader(ws)
 }
