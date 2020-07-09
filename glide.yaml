@@ -1,6 +1,0 @@
-package: .
-import:
-- package: github.com/gorilla/websocket
-- package: github.com/tarik-app/TARIK
-  subpackages:
-  - touristmedia
