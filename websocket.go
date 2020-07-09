@@ -70,7 +70,9 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 func main() {
 	fmt.Println("Go WebSocket!")
 	http.HandleFunc("/ws", wsEndpoint)
-	log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
+	port := os.Getenv("PORT")
+	http.ListenAndServe(":"+port, nil)
+	// log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
 	// .listen(process.env.PORT || 5000)
 	// ":8080"
 }
