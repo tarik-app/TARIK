@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/websocket"
 	"github.com/tarik-app/TARIK/touristmedia"
@@ -69,5 +70,7 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 func main() {
 	fmt.Println("Go WebSocket!")
 	http.HandleFunc("/ws", wsEndpoint)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
+	// .listen(process.env.PORT || 5000)
+	// ":8080"
 }
