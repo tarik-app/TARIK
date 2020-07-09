@@ -1,1 +1,1 @@
-web: bin/TARIK
+worker: bin/TARIK
