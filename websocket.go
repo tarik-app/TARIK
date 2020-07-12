@@ -21,6 +21,7 @@ func Location(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	var coor LatitLong
 	_ = json.NewDecoder(r.Body).Decode(&coor)
+	//
 	mediasummeryresult := touristmedia.GetNearbyTouristAttraction(coor.Latit, coor.Longi)
 	fmt.Println(mediasummeryresult)
 	json.NewEncoder(w).Encode(coor)
