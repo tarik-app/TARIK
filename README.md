@@ -1,3 +1,3 @@
 # TARIK
 
-An awesome location game application written in GOlang!
+An awesome location game application written in Go!
