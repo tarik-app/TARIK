@@ -35,7 +35,7 @@ func main() {
 	fmt.Println(port)
 	fmt.Println("Go WebSocket!")
 
-	r.HandleFunc("/", Location)
+	r.HandleFunc("/location", Location)
 
 	log.Fatal(http.ListenAndServe(port, r))
 	// ":8000"
