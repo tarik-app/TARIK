@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/tarik-app/TARIK/touristmedia"
 )
@@ -28,7 +29,12 @@ func Location(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	port := ":" + os.Getenv("PORT")
+	fmt.Println(port)
 	fmt.Println("Go WebSocket!")
+
 	http.HandleFunc("/location", Location)
-	log.Fatal(http.ListenAndServe(":8000", nil))
+
+	log.Fatal(http.ListenAndServe(port, nil))
+	// ":8000"
 }

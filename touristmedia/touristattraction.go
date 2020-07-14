@@ -3,11 +3,12 @@ package touristmedia
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/joho/godotenv"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type NearbyTourSites struct {
@@ -66,7 +67,7 @@ func GetNearbyTouristAttraction(lat, long float64) []string {
 		log.Fatalf("Error loading .env file")
 	}
 	googleNearbyApikey := os.Getenv("GOOGLE_NEARBY_API_KEY")
-	fmt.Println(googleNearbyApikey)
+
 	// making API call and returns http response
 	APIURL := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=1000&type=tourist_attraction&keyword=cruise&key=%s", lat, long, googleNearbyApikey)
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
