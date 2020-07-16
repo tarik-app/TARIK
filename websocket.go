@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/tarik-app/TARIK/touristmedia"
@@ -31,12 +30,12 @@ func Location(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	r := mux.NewRouter()
-	port := ":" + os.Getenv("PORT")
-	fmt.Println(port)
+	// port := ":" + os.Getenv("PORT")
+	// fmt.Println(port)
 	fmt.Println("Go WebSocket!")
 
 	r.HandleFunc("/location", Location)
 
-	log.Fatal(http.ListenAndServe(port, r))
-	// ":8000"
+	log.Fatal(http.ListenAndServe(":8000", r))
+	//
 }

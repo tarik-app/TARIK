@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
@@ -61,15 +60,17 @@ type NearbyTourSites struct {
 func GetNearbyTouristAttraction(lat, long float64) []string {
 
 	// load .env file
-	err := godotenv.Load(".env")
+	godotenv.Load(".env")
 
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	// if err != nil {
+	// 	log.Fatalf("Error loading .env file")
+	// }
 	googleNearbyApikey := os.Getenv("GOOGLE_NEARBY_API_KEY")
 
 	// making API call and returns http response
-	APIURL := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=1000&type=tourist_attraction&keyword=cruise&key=%s", lat, long, googleNearbyApikey)
+	// 37.787811, -122.415909
+	// lat, long
+	APIURL := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=1000&type=tourist_attraction&keyword=cruise&key=%s", 37.787811, -122.415909, googleNearbyApikey)
 	req, err := http.NewRequest(http.MethodGet, APIURL, nil)
 	if err != nil {
 		panic(err)
