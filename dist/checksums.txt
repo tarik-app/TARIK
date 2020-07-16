@@ -1,0 +1,4 @@
+3a0383bf8fd734ca82dd640369bad9b6e99f3a4fd5086563a3e9e62d3b43ae78  TARIK_v0.0.1-next_Linux_i386.tar.gz
+b34bceacb4c2ffc6bd9eab69680422c5faa1b406bb84afd1cd6ff4bee42b8027  TARIK_v0.0.1-next_Darwin_x86_64.tar.gz
+ec3dc995514cb26432a7eff79dc616518d8d617002f1d4e0a7a1e52253706922  TARIK_v0.0.1-next_Linux_x86_64.tar.gz
+f61aba9e66d1d3d0645ee027bb744b0fc415f1f681f91f65e5bdf130586194a7  TARIK_v0.0.1-next_Darwin_i386.tar.gz
