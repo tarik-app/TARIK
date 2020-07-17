@@ -32,11 +32,9 @@ func Location(w http.ResponseWriter, r *http.Request) {
 func main() {
 	r := mux.NewRouter()
 	port := ":" + os.Getenv("PORT")
-	// fmt.Println(port)
 	fmt.Println("Go WebSocket!")
 
 	r.HandleFunc("/", Location)
 
 	log.Fatal(http.ListenAndServe(port, r))
-	//":8000"
 }
