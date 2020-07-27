@@ -25,7 +25,7 @@ func Location(w http.ResponseWriter, r *http.Request) {
 	//
 	mediasummeryresult := touristmedia.GetNearbyTouristAttraction(coor.Latit, coor.Longi)
 	fmt.Println(mediasummeryresult)
-	json.NewEncoder(w).Encode(coor)
+	json.NewEncoder(w).Encode(mediasummeryresult)
 }
 
 func main() {
